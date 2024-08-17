@@ -1,0 +1,211 @@
+
+Cambios al proyecto:
+-------------------
+
+another_thing.py: (clase común para todos los elementos)
+    - Cuando no se declara un color para un elemento, automáticamente
+    declara 'White'
+
+aux.py: (elementos de uso 'genérico')
+    - open_file: recibe un parámetro extra 'initial' para determinar
+    el directorio inicial para el acceso.
+
+camera.py:
+    - compatibilizado con los otro elementos que definen la escena
+
+interfaz.py: (Programa principal, muchos cambios importantes)
+    - MainWindow.on_open_pov_file: Directamente abre el
+    directorio de archivos de escena.
+
+    - MainWindow.on_save_pov_as_file: Idem
+
+    - MainWindow.on_render_pov_file:
+    Intenta de a) parsear el archivo actual del editor de texto,
+    y renderiza la escena.
+
+    - MainWindow.on_render_with_pov:
+    Renderiza mediante el programa externo POVray. Recuerden que
+    la ventana con la imagen mostrada se cierra clickeando sobre
+    la imagen.
+
+    - Las constantes globales WIDTH y HEIGHT se utilizan en ambos
+    casos para definir el tamaño de la imagen.
+
+light.py:
+    - compatibilizado con los otro elementos que definen la escena
+
+math_3d.py:
+    - Ahora de utiliza la tabla de colores 'Colors' (fueron agregados
+    algunos colores mas)
+
+    - Se agrego al método 'as_pil()' para convertir el color al
+    formato requerido por PIL
+
+    - Vec2: Una clase Vec2 para facilitar la definición de vectores
+    en 2D (para figuras POVray que definen puntos en un plano)
+
+    - Vec3: Corregí un par de problemitas,
+
+    - se definió 'as_list()' para devolver los componentes x, y, z
+    en forma de lista.
+
+    - Hit: Ahora tiene los 3 componentes (t, normal y referencia al
+    objeto impactado)
+
+    - Hits: nuevo método 'clear' para borrar la lista
+
+    - Hits: nearest() devuelve el impacto mas cercano al origen.
+    (significa que si no hay impactos, devolverá float('inf'), la
+    representación numérica en Python de infinito.
+
+    - Se agregaron un par de casos a test_rgb(), test_vec3()
+
+pov_parser.py:
+    - Se hicieron unos cuantos cambios para compatibilizar a la
+    generación de todos los objetos. Fueron muchos los casos en
+    los cuales se generaba pequeñas incompatibilidades.
+
+    - Recuerden que pigment { rgb xxxx } se convierte a
+    'rgb', RGB(r, g, b) en el código de salida)
+
+    - Se agregó la posibilidad de definir un color como
+        color Red   (ver lista en math_3d.py)
+
+    - Se agregó una rutina para comprobar la definición de
+    colores por nombre y verificar la no regresión del formato
+    anterior.
+
+test_parser.py:
+    - Un par de modificaciones para compatibilidad
+
+thing.py:
+    - Sin modificaciones
+
+tracer.py:
+    (Este módulo se separó del programa principal para poder
+    compartirlo)
+    (la muestra de la imágen se delega al programa geeqie
+    externa. Para poder seguir editando, hay que cerrar al
+    geeqie cada vez)
+    - En 'ray-generator' se agregó -1 en el yield para corregir
+    el rango de y.
+
+    - En tracer: los parámtros ahora permiten listas de de
+    'things, lights, cameras'. En este momento, múltiples luces
+    no están implementados, y múltiple cámaras no funciona
+    ya que habría que implementar una forma de identificar
+    las cámaras, cosa no previsto en POVray.
+
+    - Constante 'AMBIENTE' tendría que permitir tener luz
+    ambiente (como en POVray), pero por algún motivo no parece
+    funcionar...
+
+
+MAS CAMBIOS: ('final1')
+
+tracer.py:
+    - Puede llamar a tracer.py con los parámetros x0, x1, y0, y1
+    para limitar el rango de la rasterización. Tracer pasará los
+    parámetros a ray_generator, y este generará solamente los
+    rayos pedidos. Los cuatro límites están expresados como
+    porcentaje del ancho (o alto) de la imagen (no en pixeles).
+
+    - Las fuentes de luz pueden tener color, asi como los objetos.
+    Implementé una aproximación muy rudimentaria para lograr
+    reflección subtractiva de colores (ver la rutina test_multi_lights,
+    y test_reflect ambas en math_3d.py)
+
+math_3d:
+    - Las clases Vec3, Vec2 y RGB ahora utilizan accesors ('property') para
+    proteger algo mejor a las propiedades de las instancias. El resultado mas
+    importante es que se pueden acceder a inst.x, inst.y para Vec2 (mas inst.z
+    para Vec3), y a col.r, col.g y col.z. (Si hago tiempo, haré lo mismo para
+    otras clases)
+
+    - A 'Hits' se agregaron métodos 'clear()', 'empty()', 'nrhits()'
+
+interfaz.py:
+    - Por algún motivo había quedado el código para main_menu dentro del
+    código, aunque se separó en un módulo separado. Removí a Main_menu.
+
+tracer.py:
+    - test_multi_lights ahora produce una esfera iluminada de
+    cuatro direcciones, con diferentes colores.
+
+    - test_sphere_intersection_image produce una imagen de 4 esferas en
+    diferentes posiciones.
+
+pov_parser.py:
+    - Las intricacias del parser causó unos errores bastante difíciles de
+    rastrear! Resultaron en otros cuantos cambios en el parser, y quizás aún
+    mas en los códigos de testeo, que ahora muestras mas detalles de análisis
+    de los resultados.
+
+
+MAS CAMBIOS: ('final2')
+
+tracer.py:
+    - AMBIENT ahora funciona: El factor AMBIENT al principio del archivo
+    determina cual relación existe entre luz ambiental y las luces instaladas.
+    Actualmente está en 0.2, significa que existe 20% de luz ambiente y 80% de
+    la luz está aportado por las luces 'artificiales'. (valores normalmente
+    entre 0.15 para escenas nocturnas y 0.3 para día)
+
+    - Renderizado parcial: x0, x1, y0, y1 están expresados ahora en pixeles
+    en lugar de porcentajes. Es mas preciso para renderizar áreas muy reducidos
+    de la imagen.
+
+    - csvplot.py: Permite plotear archivos CSV. Es un utilitario que permite
+    mas fácilmente diagnosticar problemas con coordenadas en el renderizador.
+    se agregó un método '.as_csv()' a Vec3 para facilitar los archivos.
+
+    Típicamente, en el renderizador, se imprimirá líneas de coordenadas
+    (Vec3) en la pantalla. Luego, al correr 'interfaz.py' directamente, se
+    podrá redireccionar esta salida a un archivo. Ejemplo:
+        (Si desea monitorear puntos de impacto) podría incluir, en el punto
+        apropiado en el código:)
+        print(f'{ray.at(t).x},{ray.at(t).y},{ray.at(t).z})
+        ./interfaz.py > log.csv
+
+        ./csvplot (seleccionar y cargar log.csv)
+            ahora se puede graficar los puntos z vs x (seleccionándolos en
+            los desplegables y activando el botón).
+
+    - Sombras ahora aparecen. Este código fue agregado a 'tracer.py': no
+    cambia nada al código de las rutinas de intersección (tarea del examen).
+
+    - En el dir 'tests_demos_extract' agregué el resultado de varias pruebas:
+
+        test_scene2.png:    Resultado de test_scene2.pov in 'scenes'
+                            - 4 esferas, diferentes colores, sin sombras!
+
+        test_scene2a.png:   Resultado de test_scene2a.pov in 'scenes'
+                            - 1 esfera amarilla (prueba de linearidad)
+
+        no_ambient.png:     1 esfera, 4 luces de diferentes colores, sin
+                            luz ambiente (AMBIENT=0)
+
+        w_ambient.png:      1 esfera, 4 luces de diferentes colores, con
+                            luz ambiente = 0.2
+
+        ball_cloud.png:     200 esferas en posiciones aleatoreas (entre + y -1)
+                            con colores aleatoreos (renderizar toma ±30')
+
+        color_cube.png:     Arreglo de 1000 esferas con los colores básicos
+                            en esquinas no adyecentes. Se agregó una segunda
+                            fuente de luz causando fuerte saturación.
+                            (renderizado toma alrededor de 2 horas, según la
+                            máquina)
+
+        cube_2l_better.png: Disminuyendo la intensidad de las luces, mejora
+                            notablemente
+
+        cube_2l_casi_ok.png:Aún menos intensidad en las fuentes de luz.
+
+        Nota: color_cube.png y ball_cloud.png fueron escenas generadas por
+        el utilitario 'gen_scenes.py' en tests_demos_extract/.
+
+    - gen_scenes.py: automáticamente genera archivos .pov con arreglos
+    de objetos con determinados tamaños, colores y ubicación en el espacio.
+    (para evitar la creación de 1000 definiciones de esferas...)
+

@@ -1,0 +1,38 @@
+2023/09/01
+    - 'Toroid' renombrado a 'Torus' para compatibilidad con POVray
+    - 'Light' agregado para definir una fuente (puntual) de luz
+    - Nueva librería (con principalmente diálogos): 'warning'
+    - Si se intenta dibujar un elemento no implementado: warning
+
+2023/09/05
+    - Camino a 'icons/' (ICON_PATH) cambiado a 'icons/dark/' para permitir
+      otras versiones
+    - Agregado: versiones de íconos para fondo claro en 'icons/light/'
+    - Clase Marker: método get_pos() ahora devuelve las coordenadas del 'centro'
+      del marcador (en lugar de la esquina superior izq)
+    - Clase nueva 'Thing': clase padre para todos los objetos de la escena.
+      agrupa funcionalidad común:
+        - método in_use() devuelve True si hay mas de un marcador definido
+        - método next_state(x, y, z, cb) agrega un marcador nuevo al objeto,
+            y devuelve 'True' si tiene suficiente marcadores para crear el
+            objeto.
+    - Clase 'Box':
+        - al seleccionar Box en la barra de objetos, fabrica un rectángulo que
+          será la representación de la caja. Ojo: la representación utiliza
+          ahora CanvasPath (en lugar de Box), ya que el path no tiene problemas
+          con rectángulos 'negativos'. El CanvasPath recibirá la especificación
+          completa cuando Box reciba el segundo marcador.
+        - to_pov_string(): Devuelve el texto para POVray.
+        - update_path(): Actualiza el campo 'data' del CanvasPath, así la
+          ubicación y forma del rectángulo.
+    - Módulo auxiliar con funciones segundarias. Sin mucha imaginación se
+      llama 'aux.py'. Brinda:
+        - warning(primary, secondary):
+          Genera un diálogo para avisar de cosas importantes. Primary es el
+          texto primerio. secondary es el texto que generalmente explica las
+          consecuencias de apretar los botones.
+        - confirmed(primary, secondary): Similar a warning(), pero permite
+          seleccionar entre cancelar y aceptar la acción. Devuelve True si
+          se acepta.
+        - Como es una librería, la clase MainWindow solo contiene código
+          mínimo para comprobar el funcionamiento de los componentes.
